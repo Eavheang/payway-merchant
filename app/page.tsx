@@ -59,6 +59,19 @@ const failedPaymentActions = new Set([
   'timeout',
 ])
 
+const isMobileDevice = () => {
+  const mobileUserAgent =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
+
+  return (
+    mobileUserAgent.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  )
+}
+
+const abaMobileBankDeepLink = (qr: string) =>
+  `abamobilebank://ababank.com?type=payway&qrcode=${encodeURIComponent(qr)}`
+
 const generateDeviceId = () => {
   const characters =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -479,6 +492,16 @@ const Page = () => {
         }),
       )
       setPaymentData(data)
+
+      if (data.qr_string && isMobileDevice()) {
+        showToast({
+          message:
+            'ABA Mobile is opening now. Return here after payment to follow the status.',
+          title: 'Opening ABA Mobile',
+          tone: 'success',
+        })
+        window.location.href = abaMobileBankDeepLink(data.qr_string)
+      }
     } catch (error) {
       const message =
         error instanceof Error

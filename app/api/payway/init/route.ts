@@ -5,15 +5,6 @@ const paywayLinkUrl = 'https://link.payway.com.kh/ABAPAYWn438575v'
 const paywayApiUrl =
   'https://pwapp.ababank.com/api/pw-app/v1/payment/gateway/list-payment-options'
 
-const mobileUserAgentPattern =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Windows Phone/i
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value)
-
-const isMobileDevice = (userAgent: string) =>
-  mobileUserAgentPattern.test(userAgent)
-
 const extractPaywayState = (html: string) => {
   const abaDataMatch = html.match(/p\.aba_data="([^"]+)"/)
   const requestTimeMatch = html.match(/request_time:"(\d+)"/)
@@ -28,35 +19,9 @@ const extractPaywayState = (html: string) => {
   }
 }
 
-const withDevicePaymentOption = (paymentData: unknown, isMobile: boolean) => {
-  if (
-    !isMobile ||
-    !isRecord(paymentData) ||
-    !isRecord(paymentData.payment_options)
-  ) {
-    return paymentData
-  }
-
-  const { abapay_khqr, ...paymentOptions } = paymentData.payment_options
-
-  if (!abapay_khqr) {
-    return paymentData
-  }
-
-  return {
-    ...paymentData,
-    payment_options: {
-      ...paymentOptions,
-      abapay_khqr_deeplink: abapay_khqr,
-    },
-  }
-}
-
 export const POST = async (request: Request) => {
   try {
     const body = (await request.json()) as { amount?: unknown }
-    const userAgent = request.headers.get('user-agent') ?? ''
-    const isMobile = isMobileDevice(userAgent)
     const amount =
       typeof body.amount === 'string' ? body.amount.trim() : String(body.amount ?? '')
     const amountValue = Number(amount)
@@ -68,10 +33,7 @@ export const POST = async (request: Request) => {
       )
     }
 
-    const linkResponse = await fetch(paywayLinkUrl, {
-      cache: 'no-store',
-      headers: userAgent ? { 'user-agent': userAgent } : undefined,
-    })
+    const linkResponse = await fetch(paywayLinkUrl, { cache: 'no-store' })
 
     if (!linkResponse.ok) {
       throw new Error('Unable to load PayWay payment link.')
@@ -94,15 +56,11 @@ export const POST = async (request: Request) => {
       headers: {
         'content-type': 'application/json',
         language: 'en',
-        ...(userAgent ? { 'user-agent': userAgent } : {}),
       },
       method: 'POST',
     })
 
-    const paymentData = withDevicePaymentOption(
-      await paywayResponse.json(),
-      isMobile,
-    )
+    const paymentData = (await paywayResponse.json()) as unknown
 
     if (!paywayResponse.ok) {
       return NextResponse.json(paymentData, { status: paywayResponse.status })
