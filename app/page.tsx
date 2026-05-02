@@ -7,6 +7,7 @@ type PaymentData = {
   client_id?: string
   download_qr?: string
   expire_in_sec?: string
+  mobile_deep_link?: string
   qr_string?: string
   request_time?: string
   status?: {
@@ -58,19 +59,6 @@ const failedPaymentActions = new Set([
   'rejected',
   'timeout',
 ])
-
-const isMobileDevice = () => {
-  const mobileUserAgent =
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
-
-  return (
-    mobileUserAgent.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  )
-}
-
-const abaMobileBankDeepLink = (qr: string) =>
-  `abamobilebank://ababank.com?type=payway&qrcode=${encodeURIComponent(qr)}`
 
 const generateDeviceId = () => {
   const characters =
@@ -493,14 +481,14 @@ const Page = () => {
       )
       setPaymentData(data)
 
-      if (data.qr_string && isMobileDevice()) {
+      if (data.mobile_deep_link) {
         showToast({
           message:
             'ABA Mobile is opening now. Return here after payment to follow the status.',
           title: 'Opening ABA Mobile',
           tone: 'success',
         })
-        window.location.href = abaMobileBankDeepLink(data.qr_string)
+        window.location.href = data.mobile_deep_link
       }
     } catch (error) {
       const message =

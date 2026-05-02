@@ -5,6 +5,20 @@ const paywayLinkUrl = 'https://link.payway.com.kh/ABAPAYWn438575v'
 const paywayApiUrl =
   'https://pwapp.ababank.com/api/pw-app/v1/payment/gateway/list-payment-options'
 
+const mobileUserAgent =
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
+
+const isMobileDeviceRequest = (request: Request) => {
+  const secChUaMobile = request.headers.get('sec-ch-ua-mobile')?.trim()
+
+  if (secChUaMobile === '?1') return true
+
+  return mobileUserAgent.test(request.headers.get('user-agent') ?? '')
+}
+
+const abaMobileBankDeepLink = (qr: string) =>
+  `abamobilebank://ababank.com?type=payway&qrcode=${encodeURIComponent(qr)}`
+
 const extractPaywayState = (html: string) => {
   const abaDataMatch = html.match(/p\.aba_data="([^"]+)"/)
   const requestTimeMatch = html.match(/request_time:"(\d+)"/)
@@ -66,8 +80,17 @@ export const POST = async (request: Request) => {
       return NextResponse.json(paymentData, { status: paywayResponse.status })
     }
 
+    const paymentPayload = paymentData as Record<string, unknown>
+    const qrString =
+      typeof paymentPayload.qr_string === 'string' ? paymentPayload.qr_string : ''
+    const mobileDeepLink =
+      qrString && isMobileDeviceRequest(request)
+        ? abaMobileBankDeepLink(qrString)
+        : undefined
+
     return NextResponse.json({
-      ...(paymentData as Record<string, unknown>),
+      ...paymentPayload,
+      ...(mobileDeepLink ? { mobile_deep_link: mobileDeepLink } : {}),
       request_time: requestTime,
     })
   } catch (error) {
