@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@hezos/aba-payway-sdk": ["./packages/aba-payway-sdk/src/index.ts"]
     }
   },
   "include": [
