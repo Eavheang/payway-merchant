@@ -1,5 +1,7 @@
 # payway-merchant
 
+[![skills.sh](https://skills.sh/b/Eavheang/payway-merchant)](https://skills.sh/Eavheang/payway-merchant)
+
 A Next.js demo merchant that takes an amount, opens an ABA PayWay payment session, and tracks the result through QR scan or ABA mobile deep link until PayWay returns a final status.
 
 The repo is a workspace: the Next.js app lives at the root and the reusable PayWay helpers live in [`packages/aba-payway-sdk`](packages/aba-payway-sdk).
