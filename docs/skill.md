@@ -53,6 +53,122 @@ For `status` endpoint:
 
 ## 3) Next.js example (current project style)
 
+Current project implementation:
+
+| Layer | File | Responsibility |
+| --- | --- | --- |
+| Next.js frontend | `app/page.tsx` | Collects amount, opens the payment dialog, displays QR/status, and polls the local backend routes. |
+| Init backend route | `app/api/payway/init/route.ts` | Validates amount and PayWay URL, calls `initPayment`, adds mobile deep link when applicable, and returns the PayWay payment payload. |
+| Status backend route | `app/api/payway/status/route.ts` | Validates status fields, calls `checkPaymentStatus`, and maps SDK/upstream errors to JSON responses. |
+| SDK package | `@hezos/aba-payway-sdk` / `packages/aba-payway-sdk` | Contains PayWay link validation, initialization, status checking, errors, and mobile deep-link helpers. |
+| Image config | `next.config.ts` | Allows `next/image` to render QR images from `pwapp.ababank.com`. |
+
+Backend/frontend shape:
+
+1. The browser does not call PayWay directly.
+2. The browser posts JSON to local Next.js route handlers under `/api/payway/*`.
+3. The route handlers run server-side inside the App Router `app` directory.
+4. Route handlers use the Web `Request` API, read JSON with `await request.json()`, and return JSON with `NextResponse.json(...)`.
+5. PayWay-specific validation, network calls, hashes, token headers, and upstream error mapping stay in the backend route/SDK layer.
+6. The client only stores UI/session fields returned by the backend: `client_id`, `request_time`, `token`, `download_qr`, `qr_string`, `expire_in_sec`, and optional `mobile_deep_link`.
+
+Request flow used by this project:
+
+```text
+app/page.tsx
+  POST /api/payway/init
+    -> app/api/payway/init/route.ts
+      -> validate amount
+      -> choose body.payway_link_url, PAYWAY_LINK_URL env, or default URL
+      -> validatePaywayLinkUrl(...)
+      -> initPayment({ amount, paywayLinkUrl })
+      -> optionally build mobile_deep_link from qr_string + request headers
+      -> return PayWay payment JSON to frontend
+
+app/page.tsx
+  POST /api/payway/status every 3 seconds after init succeeds
+    -> app/api/payway/status/route.ts
+      -> validate client_id, device_id, request_time, token
+      -> checkPaymentStatus(...)
+      -> return PayWay status JSON to frontend
+```
+
+Frontend state contract in `app/page.tsx`:
+
+```ts
+type PaymentData = {
+  client_id?: string
+  download_qr?: string
+  expire_in_sec?: string
+  mobile_deep_link?: string
+  qr_string?: string
+  request_time?: string
+  token?: string
+}
+
+type PaymentStatusData = {
+  action?: string
+  data?: {
+    action?: string
+    download_receipt?: string
+    'rq-time'?: number
+    message?: {
+      message?: string
+      tran_id?: string
+    }
+  }
+  message?: string
+  status?: {
+    message?: string
+    tran_id?: string
+  }
+}
+```
+
+Frontend init call:
+
+```ts
+const response = await fetch('/api/payway/init', {
+  body: JSON.stringify({ amount: amount.trim() }),
+  headers: {
+    'content-type': 'application/json',
+  },
+  method: 'POST',
+})
+```
+
+Frontend status call:
+
+```ts
+const response = await fetch('/api/payway/status', {
+  body: JSON.stringify({
+    client_id: paymentData.client_id,
+    device_id: deviceId,
+    request_time: paymentData.request_time,
+    token: paymentData.token,
+  }),
+  headers: {
+    'content-type': 'application/json',
+  },
+  method: 'POST',
+})
+```
+
+Next.js route-handler rules for this project:
+
+- Keep API handlers in `app/api/.../route.ts`; do not add `pages/api` routes.
+- Export HTTP method handlers such as `export const POST = async (request: Request) => { ... }`.
+- Use `NextResponse.json(data, { status })` for JSON responses.
+- Route handlers do not participate in React layouts or client-side navigation.
+- `POST` route handlers are request-time backend code and are not cached by default.
+- Do not place a `route.ts` at the same route segment level as a `page.tsx`.
+
+Security/architecture rule:
+
+- Keep PayWay signing, token forwarding, URL validation, and PayWay network calls server-side.
+- Do not expose PayWay internals or secret/configurable URLs as client-side `NEXT_PUBLIC_*` variables unless they are intentionally public.
+- Allow only normalized data needed by the UI to cross from backend to frontend.
+
 Create file: `app/api/payway/init/route.ts`
 
 ```ts
@@ -451,4 +567,3 @@ When user asks integration:
 3. Include URL validation + fallback behavior.
 4. Return consistent `400/500/504` responses.
 5. Keep default URL configurable via env when possible (`PAYWAY_LINK_URL`).
-
