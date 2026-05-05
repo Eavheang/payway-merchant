@@ -1,6 +1,11 @@
+---
+name: aba-payway
+description: Integrate the @hezos/aba-payway-sdk on the backend (Next.js App Router, Hono, Elysia, or Express). Use when adding ABA PayWay payment, generating QR codes, creating init or check-status endpoints, validating payway_link_url with fallback, mapping PayWayHttpError to upstream status codes, or building ABA mobile-bank deep links from a qr_string.
+---
+
 # ABA PayWay SDK Integration Skill
 
-Use this guide when asked:
+Use this skill when asked:
 - "How do I integrate `@hezos/aba-payway-sdk`?"
 - "Set up PayWay payment API routes for me."
 - "Create init/check-status endpoints."
