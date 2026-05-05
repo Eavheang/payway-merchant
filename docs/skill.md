@@ -103,6 +103,10 @@ type PaymentData = {
   mobile_deep_link?: string
   qr_string?: string
   request_time?: string
+  status?: {
+    message?: string
+  }
+  step?: string
   token?: string
 }
 
@@ -113,12 +117,14 @@ type PaymentStatusData = {
     download_receipt?: string
     'rq-time'?: number
     message?: {
+      code?: string
       message?: string
       tran_id?: string
     }
   }
   message?: string
   status?: {
+    code?: string
     message?: string
     tran_id?: string
   }
@@ -135,6 +141,31 @@ const response = await fetch('/api/payway/init', {
   },
   method: 'POST',
 })
+```
+
+Device ID:
+
+The status endpoint requires a `device_id`, but the SDK does not export a generator — the client must produce one. PayWay only requires that the same `device_id` is reused for status polls within a single payment session; it does not need to be persistent across sessions.
+
+```ts
+const generateDeviceId = () => {
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  const bytes = new Uint8Array(10)
+  crypto.getRandomValues(bytes)
+
+  return Array.from(bytes, (byte) => characters[byte % characters.length]).join(
+    '',
+  )
+}
+```
+
+Generate it **after `/init` succeeds**, not at page load. Status polling depends on `client_id`, `request_time`, `token` (all from `/init`) plus `device_id`, so deferring generation keeps the gating clean:
+
+```ts
+const data = await response.json()
+setDeviceId(generateDeviceId())
+setPaymentData(data)
 ```
 
 Frontend status call:
@@ -181,8 +212,7 @@ import {
   validatePaywayLinkUrl,
 } from '@hezos/aba-payway-sdk'
 
-// Parse your URL here
-const defaultPaywayLinkUrl = 'https://link.payway.com.kh/ABAPAYWn'
+const defaultPaywayLinkUrl = 'https://link.payway.com.kh/ABAPAYWn438575v'
 
 export const POST = async (request: Request) => {
   try {
@@ -567,3 +597,4 @@ When user asks integration:
 3. Include URL validation + fallback behavior.
 4. Return consistent `400/500/504` responses.
 5. Keep default URL configurable via env when possible (`PAYWAY_LINK_URL`).
+6. Add a client-side `device_id` generator (the SDK does not provide one) and pass it to every `/status` call.
