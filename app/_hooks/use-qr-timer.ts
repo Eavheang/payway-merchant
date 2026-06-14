@@ -1,22 +1,26 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { qrSecondsRemaining } from '@/app/_helpers/payment-utils'
+import { useEffect } from "react";
+import { qrSecondsRemaining } from "@/app/_helpers/payment-utils";
 
 type UseQrTimerInput = {
-  hasClientId: boolean
-  isQrSessionExpired: boolean
-  qrTtlExpireSecRef: React.MutableRefObject<number>
-  paymentReceivedAtMsRef: React.MutableRefObject<number>
-  firstRqTimeRef: React.MutableRefObject<number | null>
-  lastRqTimeRef: React.MutableRefObject<number | null>
-  lastStatusPollAtMsRef: React.MutableRefObject<number | null>
-  firstPollCompletedAtMsRef: React.MutableRefObject<number | null>
-  setSecondsUntilQrExpires: (sec: number) => void
-  setIsQrSessionExpired: (expired: boolean) => void
-  setIsPaymentDialogOpen: (open: boolean) => void
-  showToast: (toast: { message: string; title: string; tone: 'error' | 'success' }) => void
-}
+  hasClientId: boolean;
+  isQrSessionExpired: boolean;
+  qrTtlExpireSecRef: React.MutableRefObject<number>;
+  paymentReceivedAtMsRef: React.MutableRefObject<number>;
+  firstRqTimeRef: React.MutableRefObject<number | null>;
+  lastRqTimeRef: React.MutableRefObject<number | null>;
+  lastStatusPollAtMsRef: React.MutableRefObject<number | null>;
+  firstPollCompletedAtMsRef: React.MutableRefObject<number | null>;
+  setSecondsUntilQrExpires: (sec: number) => void;
+  setIsQrSessionExpired: (expired: boolean) => void;
+  setIsPaymentDialogOpen: (open: boolean) => void;
+  showToast: (toast: {
+    message: string;
+    title: string;
+    tone: "error" | "success";
+  }) => void;
+};
 
 export const useQrTimer = ({
   hasClientId,
@@ -34,7 +38,7 @@ export const useQrTimer = ({
 }: UseQrTimerInput) => {
   useEffect(() => {
     if (!hasClientId || isQrSessionExpired) {
-      return
+      return;
     }
 
     const tick = () => {
@@ -45,26 +49,26 @@ export const useQrTimer = ({
         lastRqTime: lastRqTimeRef.current,
         lastPollAtMs: lastStatusPollAtMsRef.current,
         firstPollCompletedAtMs: firstPollCompletedAtMsRef.current,
-      })
+      });
 
-      setSecondsUntilQrExpires(next)
+      setSecondsUntilQrExpires(next);
 
       if (next <= 0) {
-        setIsQrSessionExpired(true)
-        setIsPaymentDialogOpen(false)
+        setIsQrSessionExpired(true);
+        setIsPaymentDialogOpen(false);
         showToast({
           message:
-            'The QR code expired before PayWay approved the payment. Enter the amount again to create a fresh QR.',
-          title: 'Payment Expired',
-          tone: 'error',
-        })
+            "The QR code expired before PayWay approved the payment. Enter the amount again to create a fresh QR.",
+          title: "Payment Expired",
+          tone: "error",
+        });
       }
-    }
+    };
 
-    tick()
-    const id = window.setInterval(tick, 1000)
+    tick();
+    const id = window.setInterval(tick, 1000);
 
-    return () => window.clearInterval(id)
+    return () => window.clearInterval(id);
   }, [
     hasClientId,
     isQrSessionExpired,
@@ -78,5 +82,5 @@ export const useQrTimer = ({
     setIsQrSessionExpired,
     setIsPaymentDialogOpen,
     showToast,
-  ])
-}
+  ]);
+};

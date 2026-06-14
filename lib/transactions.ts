@@ -26,28 +26,9 @@ export const findTransactionByKey = (
   return transactionStore.get(idempotencyKey)
 }
 
-export const findTransactionByClientId = (
-  clientId: string,
-): TransactionRecord | undefined => {
-  for (const record of transactionStore.values()) {
-    if (record.clientId === clientId) return record
-  }
-  return undefined
-}
-
 export const createTransaction = (
   record: TransactionRecord,
 ): TransactionRecord => {
   transactionStore.set(record.idempotencyKey, record)
   return record
-}
-
-export const updateTransactionStatus = (
-  idempotencyKey: string,
-  status: TransactionRecord['status'],
-) => {
-  const record = transactionStore.get(idempotencyKey)
-  if (record) {
-    transactionStore.set(idempotencyKey, { ...record, status })
-  }
 }

@@ -1,1 +1,1 @@
-export const DEFAULT_QR_TTL_SEC = 180
+export const DEFAULT_QR_TTL_SEC = 180;

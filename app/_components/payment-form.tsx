@@ -1,16 +1,16 @@
-'use client'
+"use client";
 
-import type { FormEvent, RefObject } from 'react'
+import type { FormEvent, RefObject } from "react";
 
 type PaymentFormProps = {
-  amount: string
-  error: string
-  isLoading: boolean
-  formattedAmount: string
-  amountInputRef: RefObject<HTMLInputElement | null>
-  onAmountChange: (amount: string) => void
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void
-}
+  amount: string;
+  error: string;
+  isLoading: boolean;
+  formattedAmount: string;
+  amountInputRef: RefObject<HTMLInputElement | null>;
+  onAmountChange: (amount: string) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+};
 
 export const PaymentForm = ({
   amount,
@@ -24,7 +24,7 @@ export const PaymentForm = ({
   return (
     <section
       aria-labelledby="payment-card-title"
-      className="rounded-[2rem] border border-stone-950/10 bg-stone-950 p-3 shadow-2xl shadow-stone-950/20"
+      className="rounded-4xl border border-stone-950/10 bg-stone-950 p-3 shadow-2xl shadow-stone-950/20"
     >
       <div className="rounded-[1.65rem] border border-white/10 bg-[#fffaf0] p-6 shadow-inner shadow-white/40 sm:p-8">
         <div className="flex items-start justify-between gap-5">
@@ -98,10 +98,10 @@ export const PaymentForm = ({
             disabled={isLoading}
             type="submit"
           >
-            {isLoading ? 'Preparing Payment…' : 'Open Payment Dialog'}
+            {isLoading ? "Preparing Payment…" : "Open Payment Dialog"}
           </button>
         </form>
       </div>
     </section>
-  )
-}
+  );
+};

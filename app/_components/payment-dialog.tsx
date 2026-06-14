@@ -1,26 +1,30 @@
-'use client'
+"use client";
 
-import Image from 'next/image'
-import type { RefObject } from 'react'
-import type { PaymentData } from '@/app/_types/payment'
-import { paymentStatusMessage } from '@/app/_helpers/payment-utils'
-import { DEFAULT_QR_TTL_SEC } from '@/app/_constants/payment'
+import Image from "next/image";
+import type { RefObject } from "react";
+import type { PaymentData } from "@/app/_types/payment";
+import { paymentStatusMessage } from "@/app/_helpers/payment-utils";
+import { DEFAULT_QR_TTL_SEC } from "@/app/_constants/payment";
 
 type PaymentDialogProps = {
-  isLoading: boolean
-  paymentData: PaymentData | null
-  formattedAmount: string
-  secondsUntilQrExpires: number | null
-  paywayInitTtlSec: number | null
-  statusError: string
-  canCheckStatus: boolean
-  isCheckingStatus: boolean
-  isQrSessionExpired: boolean
-  statusData: { data?: { message?: { message?: string } }; message?: string; status?: { message?: string } } | null
-  paymentDialogRef: RefObject<HTMLDialogElement | null>
-  onClose: () => void
-  onCheckStatus: () => void
-}
+  isLoading: boolean;
+  paymentData: PaymentData | null;
+  formattedAmount: string;
+  secondsUntilQrExpires: number | null;
+  paywayInitTtlSec: number | null;
+  statusError: string;
+  canCheckStatus: boolean;
+  isCheckingStatus: boolean;
+  isQrSessionExpired: boolean;
+  statusData: {
+    data?: { message?: { message?: string } };
+    message?: string;
+    status?: { message?: string };
+  } | null;
+  paymentDialogRef: RefObject<HTMLDialogElement | null>;
+  onClose: () => void;
+  onCheckStatus: () => void;
+};
 
 export const PaymentDialog = ({
   isLoading,
@@ -38,14 +42,14 @@ export const PaymentDialog = ({
   onCheckStatus,
 }: PaymentDialogProps) => {
   const dialogTitle = isLoading
-    ? 'Preparing Secure Payment'
+    ? "Preparing Secure Payment"
     : paymentData
-      ? 'Scan & Confirm Payment'
-      : 'Payment Session'
+      ? "Scan & Confirm Payment"
+      : "Payment Session";
 
   const statusMessage = paymentStatusMessage(
     statusData as Parameters<typeof paymentStatusMessage>[0],
-  )
+  );
 
   return (
     <dialog
@@ -137,7 +141,7 @@ export const PaymentDialog = ({
                     Status
                   </p>
                   <p className="mt-1 font-bold text-stone-950">
-                    {statusMessage ?? 'Waiting for confirmation'}
+                    {statusMessage ?? "Waiting for confirmation"}
                   </p>
                 </div>
                 <div>
@@ -169,7 +173,7 @@ export const PaymentDialog = ({
                 onClick={() => void onCheckStatus()}
                 type="button"
               >
-                {isCheckingStatus ? 'Checking Status…' : 'Check Status Now'}
+                {isCheckingStatus ? "Checking Status…" : "Check Status Now"}
               </button>
             </div>
           ) : (
@@ -180,5 +184,5 @@ export const PaymentDialog = ({
         </div>
       </div>
     </dialog>
-  )
-}
+  );
+};
