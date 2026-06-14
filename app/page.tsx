@@ -1,6 +1,6 @@
 'use client'
 
-import { type FormEvent, useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PaymentData, ToastState } from '@/app/_types/payment'
 import { amountFormatter, generateDeviceId } from '@/app/_helpers/payment-utils'
 import { usePaymentPolling } from '@/app/_hooks/use-payment-polling'
@@ -44,7 +44,7 @@ const Page = () => {
     Boolean(paymentData?.token) &&
     Boolean(deviceId)
 
-  const showToast = useCallback(
+  const showToastAction = useCallback(
     (nextToast: Omit<NonNullable<ToastState>, 'id'>) => {
       setToast({ ...nextToast, id: Date.now() })
     },
@@ -71,7 +71,7 @@ const Page = () => {
     lastStatusPollAtMsRef,
     firstPollCompletedAtMsRef,
     sessionCounterRef,
-    showToast,
+    showToastAction,
     setIsPaymentDialogOpen,
     setIsQrSessionExpired,
     setSecondsUntilQrExpires,
@@ -89,7 +89,7 @@ const Page = () => {
     setSecondsUntilQrExpires,
     setIsQrSessionExpired,
     setIsPaymentDialogOpen,
-    showToast,
+    showToastAction,
   })
 
   useEffect(() => {
@@ -131,7 +131,7 @@ const Page = () => {
     stopPolling()
   }, [stopPolling])
 
-  const handleProceed = async (event: FormEvent<HTMLFormElement>) => {
+  const handleProceed = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!hasValidAmount) {
@@ -180,7 +180,7 @@ const Page = () => {
       setPaymentData(data)
 
       if (data.mobile_deep_link) {
-        showToast({
+        showToastAction({
           message:
             'ABA Mobile is opening now. Return here after payment to follow the status.',
           title: 'Opening ABA Mobile',
@@ -197,7 +197,7 @@ const Page = () => {
           : 'Unable to initialize PayWay payment.'
       setError(message)
       setIsPaymentDialogOpen(false)
-      showToast({
+      showToastAction({
         message,
         title: 'Payment Could Not Start',
         tone: 'error',

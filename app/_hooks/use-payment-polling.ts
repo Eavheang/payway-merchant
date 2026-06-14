@@ -23,7 +23,7 @@ type UsePaymentPollingInput = {
   lastStatusPollAtMsRef: React.MutableRefObject<number | null>;
   firstPollCompletedAtMsRef: React.MutableRefObject<number | null>;
   sessionCounterRef: React.MutableRefObject<number>;
-  showToast: (toast: {
+  showToastAction: (toast: {
     message: string;
     title: string;
     tone: "error" | "success";
@@ -46,7 +46,7 @@ export const usePaymentPolling = ({
   lastStatusPollAtMsRef,
   firstPollCompletedAtMsRef,
   sessionCounterRef,
-  showToast,
+  showToastAction,
   setIsPaymentDialogOpen,
   setIsQrSessionExpired,
   setSecondsUntilQrExpires,
@@ -130,7 +130,7 @@ export const usePaymentPolling = ({
         if (synced <= 0) {
           setIsQrSessionExpired(true);
           setIsPaymentDialogOpen(false);
-          showToast({
+          showToastAction({
             message:
               "The QR code expired before PayWay approved the payment. Enter the amount again to create a fresh QR.",
             title: "Payment Expired",
@@ -146,7 +146,7 @@ export const usePaymentPolling = ({
       if (outcome === "success") {
         hasReachedTerminalState.current = true;
         setIsPaymentDialogOpen(false);
-        showToast({
+        showToastAction({
           message:
             "PayWay approved the transaction. The payment session is complete.",
           title: "Payment Successful",
@@ -155,7 +155,7 @@ export const usePaymentPolling = ({
       } else if (outcome === "failed") {
         hasReachedTerminalState.current = true;
         setIsPaymentDialogOpen(false);
-        showToast({
+        showToastAction({
           message:
             paymentStatusMessage(data) ??
             "PayWay did not approve this transaction. Try again with a new QR.",
@@ -182,7 +182,7 @@ export const usePaymentPolling = ({
     deviceId,
     isQrSessionExpired,
     paymentData,
-    showToast,
+    showToastAction,
     sessionCounterRef,
     qrTtlExpireSecRef,
     paymentReceivedAtMsRef,

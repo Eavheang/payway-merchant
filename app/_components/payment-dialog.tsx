@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import type { RefObject } from "react";
 import type { PaymentData } from "@/app/_types/payment";

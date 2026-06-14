@@ -15,7 +15,7 @@ type UseQrTimerInput = {
   setSecondsUntilQrExpires: (sec: number) => void;
   setIsQrSessionExpired: (expired: boolean) => void;
   setIsPaymentDialogOpen: (open: boolean) => void;
-  showToast: (toast: {
+  showToastAction: (toast: {
     message: string;
     title: string;
     tone: "error" | "success";
@@ -34,7 +34,7 @@ export const useQrTimer = ({
   setSecondsUntilQrExpires,
   setIsQrSessionExpired,
   setIsPaymentDialogOpen,
-  showToast,
+  showToastAction,
 }: UseQrTimerInput) => {
   useEffect(() => {
     if (!hasClientId || isQrSessionExpired) {
@@ -56,7 +56,7 @@ export const useQrTimer = ({
       if (next <= 0) {
         setIsQrSessionExpired(true);
         setIsPaymentDialogOpen(false);
-        showToast({
+        showToastAction({
           message:
             "The QR code expired before PayWay approved the payment. Enter the amount again to create a fresh QR.",
           title: "Payment Expired",
@@ -81,6 +81,6 @@ export const useQrTimer = ({
     setSecondsUntilQrExpires,
     setIsQrSessionExpired,
     setIsPaymentDialogOpen,
-    showToast,
+    showToastAction,
   ]);
 };
