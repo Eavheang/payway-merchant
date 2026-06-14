@@ -4,9 +4,13 @@ export declare class PayWayHttpError extends Error {
     data: unknown;
     constructor(message: string, status: number, data: unknown);
 }
+export declare class PayWayLinkParseError extends Error {
+    constructor(htmlSnippet: string);
+}
 export type InitPaymentInput = {
     amount: string;
     paywayLinkUrl: string;
+    apiBaseUrl?: string;
     fetchImpl?: FetchImpl;
 };
 export type InitPaymentResult = Record<string, unknown> & {
@@ -17,6 +21,7 @@ export type CheckStatusInput = {
     deviceId: string;
     requestTime: string;
     token: string;
+    apiBaseUrl?: string;
     fetchImpl?: FetchImpl;
     timeoutMs?: number;
 };

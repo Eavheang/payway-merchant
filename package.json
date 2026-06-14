@@ -7,9 +7,11 @@
   ],
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run build:sdk && next build",
+    "build:sdk": "cd packages/aba-payway-sdk && npm run build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@hezos/aba-payway-sdk": "^0.1.0",

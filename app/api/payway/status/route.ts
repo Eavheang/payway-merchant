@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { checkPaymentStatus, PayWayHttpError } from '@hezos/aba-payway-sdk'
+import { rateLimit } from '@/lib/rate-limit'
 
 type StatusRequestBody = {
   client_id?: unknown
@@ -9,6 +10,17 @@ type StatusRequestBody = {
 }
 
 export const POST = async (request: Request) => {
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  const { allowed } = rateLimit(`status:${ip}`, 60, 60_000)
+
+  if (!allowed) {
+    return NextResponse.json(
+      { message: 'Too many requests. Please wait a moment and try again.' },
+      { status: 429 },
+    )
+  }
+
   try {
     const body = (await request.json()) as StatusRequestBody
     const clientId =
@@ -22,6 +34,18 @@ export const POST = async (request: Request) => {
     if (!clientId || !deviceId || !requestTime || !token) {
       return NextResponse.json(
         { message: 'Missing PayWay status check data.' },
+        { status: 400 },
+      )
+    }
+
+    if (
+      clientId.length > 2000 ||
+      deviceId.length > 2000 ||
+      requestTime.length > 2000 ||
+      token.length > 2000
+    ) {
+      return NextResponse.json(
+        { message: 'One or more fields exceed the maximum length.' },
         { status: 400 },
       )
     }

@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 
-const paywayApiUrl =
+const defaultPaywayApiUrl =
   "https://pwapp.ababank.com/api/pw-app/v1/payment/gateway/list-payment-options";
-const paywayStatusUrl =
+const defaultPaywayStatusUrl =
   "https://pwapp.ababank.com/api/pw-app/v1/payment-link/check-payment-status";
 
 type FetchImpl = typeof fetch;
@@ -19,9 +19,19 @@ export class PayWayHttpError extends Error {
   }
 }
 
+export class PayWayLinkParseError extends Error {
+  constructor(htmlSnippet: string) {
+    super(
+      `PayWay link page format unexpected. Expected to find 'aba_data' and 'request_time' embedded in page. Got: ${htmlSnippet.slice(0, 200)}`,
+    );
+    this.name = "PayWayLinkParseError";
+  }
+}
+
 export type InitPaymentInput = {
   amount: string;
   paywayLinkUrl: string;
+  apiBaseUrl?: string;
   fetchImpl?: FetchImpl;
 };
 
@@ -34,6 +44,7 @@ export type CheckStatusInput = {
   deviceId: string;
   requestTime: string;
   token: string;
+  apiBaseUrl?: string;
   fetchImpl?: FetchImpl;
   timeoutMs?: number;
 };
@@ -70,7 +81,7 @@ const extractPaywayState = (html: string) => {
   const requestTimeMatch = html.match(/request_time:"(\d+)"/);
 
   if (!abaDataMatch?.[1] || !requestTimeMatch?.[1]) {
-    throw new Error("Unable to read PayWay payment link data.");
+    throw new PayWayLinkParseError(html);
   }
 
   return {
@@ -119,6 +130,7 @@ export const initPayment = async (
   input: InitPaymentInput,
 ): Promise<InitPaymentResult> => {
   const fetchImpl = input.fetchImpl ?? fetch;
+  const baseUrl = input.apiBaseUrl ?? defaultPaywayApiUrl;
 
   const linkResponse = await fetchImpl(input.paywayLinkUrl, { cache: "no-store" });
 
@@ -132,7 +144,7 @@ export const initPayment = async (
     .update(requestTime + abaData + additionalFields)
     .digest("hex");
 
-  const paywayResponse = await fetchImpl(paywayApiUrl, {
+  const paywayResponse = await fetchImpl(baseUrl, {
     body: JSON.stringify({
       additional_fields: additionalFields,
       request_time: requestTime,
@@ -165,11 +177,12 @@ export const initPayment = async (
 
 export const checkPaymentStatus = async (input: CheckStatusInput) => {
   const fetchImpl = input.fetchImpl ?? fetch;
+  const baseUrl = input.apiBaseUrl ?? defaultPaywayStatusUrl;
   const hash = createHash("sha512")
     .update(input.clientId + input.deviceId + input.requestTime)
     .digest("hex");
 
-  const paywayResponse = await fetchImpl(paywayStatusUrl, {
+  const paywayResponse = await fetchImpl(baseUrl, {
     body: JSON.stringify({
       device_id: input.deviceId,
       request_time: input.requestTime,
