@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: 'pwapp.ababank.com',
+        hostname: 'link.payway.com.kh',
         pathname: '/api/pw-app/v1/payment/gateway/download-qr',
         protocol: 'https',
       },

@@ -66,7 +66,7 @@ Current project implementation:
 | Init backend route | `app/api/payway/init/route.ts` | Validates amount and PayWay URL, calls `initPayment`, adds mobile deep link when applicable, and returns the PayWay payment payload. |
 | Status backend route | `app/api/payway/status/route.ts` | Validates status fields, calls `checkPaymentStatus`, and maps SDK/upstream errors to JSON responses. |
 | SDK package | `@hezos/aba-payway-sdk` / `packages/aba-payway-sdk` | Contains PayWay link validation, initialization, status checking, errors, and mobile deep-link helpers. |
-| Image config | `next.config.ts` | Allows `next/image` to render QR images from `pwapp.ababank.com`. |
+| Image config | `next.config.ts` | Allows `next/image` to render QR images from `link.payway.com.kh`. |
 
 Backend/frontend shape:
 
