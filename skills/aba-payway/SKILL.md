@@ -62,7 +62,7 @@ Current project implementation:
 
 | Layer | File | Responsibility |
 | --- | --- | --- |
-| Next.js frontend | `app/page.tsx` | Collects amount, opens the payment dialog, displays QR/status, and polls the local backend routes. |
+| Next.js frontend | `app/_partials/paymentCheckout.tsx` (rendered by `app/page.tsx`) | Collects amount, opens the payment dialog, displays QR/status, and polls the local backend routes. |
 | Init backend route | `app/api/payway/init/route.ts` | Validates amount and PayWay URL, calls `initPayment`, adds mobile deep link when applicable, and returns the PayWay payment payload. |
 | Status backend route | `app/api/payway/status/route.ts` | Validates status fields, calls `checkPaymentStatus`, and maps SDK/upstream errors to JSON responses. |
 | SDK package | `@hezos/aba-payway-sdk` / `packages/aba-payway-sdk` | Contains PayWay link validation, initialization, status checking, errors, and mobile deep-link helpers. |
@@ -80,7 +80,7 @@ Backend/frontend shape:
 Request flow used by this project:
 
 ```text
-app/page.tsx
+app/_partials/paymentCheckout.tsx
   POST /api/payway/init
     -> app/api/payway/init/route.ts
       -> validate amount
@@ -90,7 +90,7 @@ app/page.tsx
       -> optionally build mobile_deep_link from qr_string + request headers
       -> return PayWay payment JSON to frontend
 
-app/page.tsx
+app/_partials/paymentCheckout.tsx
   POST /api/payway/status every 3 seconds after init succeeds
     -> app/api/payway/status/route.ts
       -> validate client_id, device_id, request_time, token
@@ -98,7 +98,7 @@ app/page.tsx
       -> return PayWay status JSON to frontend
 ```
 
-Frontend state contract in `app/page.tsx`:
+Frontend state contract in `app/_partials/paymentCheckout.tsx`:
 
 ```ts
 type PaymentData = {
@@ -217,7 +217,7 @@ import {
   validatePaywayLinkUrl,
 } from '@hezos/aba-payway-sdk'
 
-const defaultPaywayLinkUrl = 'https://link.payway.com.kh/ABAPAYWn438575v'
+const defaultPaywayLinkUrl = 'https://link.payway.com.kh/ABAPAYYE560738X'
 
 export const POST = async (request: Request) => {
   try {
@@ -372,7 +372,7 @@ import {
 } from '@hezos/aba-payway-sdk'
 
 const app = new Hono()
-const defaultPaywayLinkUrl = 'https://link.payway.com.kh/ABAPAYWn438575v'
+const defaultPaywayLinkUrl = 'https://link.payway.com.kh/ABAPAYYE560738X'
 
 app.post('/api/payway/init', async (c) => {
   try {
@@ -446,7 +446,7 @@ import {
 } from '@hezos/aba-payway-sdk'
 
 const app = new Elysia()
-const defaultPaywayLinkUrl = 'https://link.payway.com.kh/ABAPAYWn438575v'
+const defaultPaywayLinkUrl = 'https://link.payway.com.kh/ABAPAYYE560738X'
 
 app.post('/api/payway/init', async ({ body, set }) => {
   try {
@@ -530,7 +530,7 @@ import {
 
 const app = express()
 app.use(express.json())
-const defaultPaywayLinkUrl = 'https://link.payway.com.kh/ABAPAYWn438575v'
+const defaultPaywayLinkUrl = 'https://link.payway.com.kh/ABAPAYYE560738X'
 
 app.post('/api/payway/init', async (req, res) => {
   try {
