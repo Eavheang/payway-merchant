@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
 
 const defaultPaywayApiUrl =
-  "https://pwapp.ababank.com/api/pw-app/v1/payment/gateway/list-payment-options";
+  "https://link.payway.com.kh/api/pw-app/v1/payment/gateway/list-payment-options";
 const defaultPaywayStatusUrl =
-  "https://pwapp.ababank.com/api/pw-app/v1/payment-link/check-payment-status";
+  "https://link.payway.com.kh/api/pw-app/v1/payment-link/check-payment-status";
 
 type FetchImpl = typeof fetch;
 
@@ -77,7 +77,7 @@ export const buildAbaMobileBankDeepLink = (qr: string) =>
   `abamobilebank://ababank.com?type=payway&qrcode=${encodeURIComponent(qr)}`;
 
 const extractPaywayState = (html: string) => {
-  const abaDataMatch = html.match(/p\.aba_data="([^"]+)"/);
+  const abaDataMatch = html.match(/\.aba_data="([^"]+)"/);
   const requestTimeMatch = html.match(/request_time:"(\d+)"/);
 
   if (!abaDataMatch?.[1] || !requestTimeMatch?.[1]) {

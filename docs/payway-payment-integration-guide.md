@@ -65,7 +65,7 @@ The PayWay link is used as the source of truth for the payment session.
 Example PayWay payment link:
 
 ```text
-https://link.payway.com.kh/ABAPAYWn438575v
+https://link.payway.com.kh/ABAPAYYE560738X
 ```
 
 The application does not directly edit the PayWay link URL. Instead, it performs this sequence:
@@ -110,7 +110,7 @@ sha512(client_id + device_id + request_time)
 
 | Purpose | Method | Endpoint |
 | --- | --- | --- |
-| Hosted payment link | `GET` | `https://link.payway.com.kh/ABAPAYWn438575v` |
+| Hosted payment link | `GET` | `https://link.payway.com.kh/ABAPAYYE560738X` |
 | Initialize payment options | `POST` | `https://pwapp.ababank.com/api/pw-app/v1/payment/gateway/list-payment-options` |
 | Check payment status | `POST` | `https://pwapp.ababank.com/api/pw-app/v1/payment-link/check-payment-status` |
 
@@ -130,7 +130,7 @@ This route receives the amount from the browser, fetches the PayWay link, extrac
 import { createHash } from 'crypto'
 import { NextResponse } from 'next/server'
 
-const paywayLinkUrl = 'https://link.payway.com.kh/ABAPAYWn438575v'
+const paywayLinkUrl = 'https://link.payway.com.kh/ABAPAYYE560738X'
 const paywayApiUrl =
   'https://pwapp.ababank.com/api/pw-app/v1/payment/gateway/list-payment-options'
 

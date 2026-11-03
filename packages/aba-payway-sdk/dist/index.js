@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-const defaultPaywayApiUrl = "https://pwapp.ababank.com/api/pw-app/v1/payment/gateway/list-payment-options";
-const defaultPaywayStatusUrl = "https://pwapp.ababank.com/api/pw-app/v1/payment-link/check-payment-status";
+const defaultPaywayApiUrl = "https://link.payway.com.kh/api/pw-app/v1/payment/gateway/list-payment-options";
+const defaultPaywayStatusUrl = "https://link.payway.com.kh/api/pw-app/v1/payment-link/check-payment-status";
 export class PayWayHttpError extends Error {
     status;
     data;
@@ -26,7 +26,7 @@ export const isMobileDevice = (input) => {
 };
 export const buildAbaMobileBankDeepLink = (qr) => `abamobilebank://ababank.com?type=payway&qrcode=${encodeURIComponent(qr)}`;
 const extractPaywayState = (html) => {
-    const abaDataMatch = html.match(/p\.aba_data="([^"]+)"/);
+    const abaDataMatch = html.match(/\.aba_data="([^"]+)"/);
     const requestTimeMatch = html.match(/request_time:"(\d+)"/);
     if (!abaDataMatch?.[1] || !requestTimeMatch?.[1]) {
         throw new PayWayLinkParseError(html);

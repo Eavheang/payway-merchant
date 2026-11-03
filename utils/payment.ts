@@ -1,9 +1,21 @@
-import type { PaymentStatusData, QrTimerContext } from "@/app/_types/payment";
+import type {
+  PaymentData,
+  PaymentStatusData,
+  QrTimerContext,
+} from "@/interfaces/IPayment";
 
 export const amountFormatter = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 2,
-  minimumFractionDigits: 2,
+  currency: "USD",
+  style: "currency",
 });
+
+export const formatSeconds = (seconds: number): string => {
+  const safe = Math.max(0, Math.floor(seconds));
+  const minutes = Math.floor(safe / 60);
+  const remainder = safe % 60;
+
+  return `${minutes}:${remainder.toString().padStart(2, "0")}`;
+};
 
 export const failedPaymentActions = new Set([
   "cancelled",
@@ -42,6 +54,19 @@ export const paymentStatusMessage = (
   data: PaymentStatusData | null,
 ): string | undefined =>
   data?.data?.message?.message ?? data?.status?.message ?? data?.message;
+
+export const paymentStatusLabel = (data: PaymentStatusData | null): string => {
+  const outcome = data ? paymentOutcome(data) : null;
+  const rawStatus = paymentStatusMessage(data)?.trim();
+  const genericAck = !rawStatus || /^success!?$/i.test(rawStatus);
+
+  if (outcome === "success") return "Payment approved";
+  if (outcome === "failed") {
+    return genericAck || !rawStatus ? "Payment failed" : rawStatus;
+  }
+
+  return "Waiting for confirmation";
+};
 
 export const transactionId = (
   data: PaymentStatusData | null,
@@ -99,4 +124,18 @@ export const getPollIntervalMs = (remainingSec: number | null): number => {
   if (remainingSec > 60) return 5000;
   if (remainingSec > 20) return 3000;
   return 2000;
+};
+
+export const DEFAULT_QR_TTL_SEC = 180;
+
+export const isValidAmount = (amount: string): boolean => {
+  const value = Number(amount);
+  return amount.trim() !== "" && Number.isFinite(value) && value > 0;
+};
+
+export const qrTtlSec = (data: PaymentData): number => {
+  const backendTtlSec = Number(data.expire_in_sec);
+  return Number.isFinite(backendTtlSec) && backendTtlSec > 0
+    ? backendTtlSec
+    : DEFAULT_QR_TTL_SEC;
 };

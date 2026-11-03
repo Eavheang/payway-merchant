@@ -1,39 +1,77 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-canvas: #f3f5f7;
+  --color-surface: #ffffff;
+  --color-ink: #10233a;
+  --color-muted: #3e5166;
+  --color-hint: #66788a;
+  --color-line: #d5dee7;
+  --color-action: #c8102e;
+  --color-action-hover: #a30e24;
+  --color-danger: #8f1d2c;
+  --color-ok: #0f6b45;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@utility button-primary {
+  @apply inline-flex items-center justify-center rounded-md bg-action px-4 py-3 text-base font-semibold text-white transition-colors duration-150 hover:bg-action-hover active:bg-action-hover disabled:cursor-not-allowed disabled:bg-line disabled:text-muted motion-reduce:transition-none;
+}
+
+@utility button-quiet {
+  @apply inline-flex items-center justify-center rounded-md border border-line bg-surface px-4 py-3 text-sm font-semibold text-ink transition-colors duration-150 hover:bg-canvas active:bg-canvas disabled:cursor-not-allowed disabled:text-muted motion-reduce:transition-none;
+}
+
+html {
+  background-color: var(--color-canvas);
+  color-scheme: light;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+@media (pointer: fine) {
+  html {
+    overscroll-behavior: none;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  font-feature-settings: "liga" 1, "calt" 1;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+input {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+}
+
+dialog::backdrop {
+  background-color: color-mix(in srgb, var(--color-ink) 60%, transparent);
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.98);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }

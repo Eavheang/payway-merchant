@@ -47,3 +47,7 @@ export type QrTimerContext = {
   lastPollAtMs: number | null
   firstPollCompletedAtMs: number | null
 }
+
+export type PaymentFormValues = {
+  amount: string
+}

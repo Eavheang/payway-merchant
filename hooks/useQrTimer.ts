@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { qrSecondsRemaining } from "@/app/_helpers/payment-utils";
+import { qrSecondsRemaining } from "@/utils/payment";
 
 type UseQrTimerInput = {
   hasClientId: boolean;
@@ -59,7 +59,7 @@ export const useQrTimer = ({
         showToastAction({
           message:
             "The QR code expired before PayWay approved the payment. Enter the amount again to create a fresh QR.",
-          title: "Payment Expired",
+          title: "Payment expired",
           tone: "error",
         });
       }

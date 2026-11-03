@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import QRCode from 'qrcode'
 import {
   buildAbaMobileBankDeepLink,
   initPayment,
@@ -12,7 +13,7 @@ import {
   findTransactionByKey,
 } from '@/lib/transactions'
 
-const defaultPaywayLinkUrl = 'https://link.payway.com.kh/ABAPAYWn438575v'
+const defaultPaywayLinkUrl = 'https://link.payway.com.kh/ABAPAYYE560738X'
 
 export const POST = async (request: Request) => {
   const ip =
@@ -128,8 +129,17 @@ export const POST = async (request: Request) => {
       })
     }
 
+    // PayWay stopped returning download_qr; render qr_string ourselves.
+    const downloadQr =
+      typeof paymentPayload.download_qr === 'string'
+        ? paymentPayload.download_qr
+        : qrString
+          ? await QRCode.toDataURL(qrString, { margin: 1, width: 448 })
+          : undefined
+
     return NextResponse.json({
       ...paymentPayload,
+      ...(downloadQr ? { download_qr: downloadQr } : {}),
       ...(mobileDeepLink ? { mobile_deep_link: mobileDeepLink } : {}),
       payway_link_url: paywayLinkUrl,
       ...(paywayLinkWarning ? { warning: paywayLinkWarning } : {}),
