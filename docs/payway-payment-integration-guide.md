@@ -111,8 +111,8 @@ sha512(client_id + device_id + request_time)
 | Purpose | Method | Endpoint |
 | --- | --- | --- |
 | Hosted payment link | `GET` | `https://link.payway.com.kh/ABAPAYYE560738X` |
-| Initialize payment options | `POST` | `https://pwapp.ababank.com/api/pw-app/v1/payment/gateway/list-payment-options` |
-| Check payment status | `POST` | `https://pwapp.ababank.com/api/pw-app/v1/payment-link/check-payment-status` |
+| Initialize payment options | `POST` | `https://link.payway.com.kh/api/pw-app/v1/payment/gateway/list-payment-options` |
+| Check payment status | `POST` | `https://link.payway.com.kh/api/pw-app/v1/payment-link/check-payment-status` |
 
 ## 5. Step-by-Step Implementation
 
@@ -132,7 +132,7 @@ import { NextResponse } from 'next/server'
 
 const paywayLinkUrl = 'https://link.payway.com.kh/ABAPAYYE560738X'
 const paywayApiUrl =
-  'https://pwapp.ababank.com/api/pw-app/v1/payment/gateway/list-payment-options'
+  'https://link.payway.com.kh/api/pw-app/v1/payment/gateway/list-payment-options'
 
 const extractPaywayState = (html: string) => {
   const abaDataMatch = html.match(/p\.aba_data="([^"]+)"/)
@@ -253,7 +253,7 @@ PayWay returns a response similar to:
   "client_id": "2245513-438575-15883134",
   "expire_in_sec": "180",
   "qr_string": "000201010212...",
-  "download_qr": "https://pwapp.ababank.com/api/pw-app/v1/payment/gateway/download-qr?...",
+  "download_qr": "https://link.payway.com.kh/api/pw-app/v1/payment/gateway/download-qr?...",
   "aba_data": "UPDATED_ABA_DATA"
 }
 ```
@@ -375,7 +375,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: 'pwapp.ababank.com',
+        hostname: 'link.payway.com.kh',
         pathname: '/api/pw-app/v1/payment/gateway/download-qr',
         protocol: 'https',
       },
@@ -417,7 +417,7 @@ import { createHash } from 'crypto'
 import { NextResponse } from 'next/server'
 
 const paywayStatusUrl =
-  'https://pwapp.ababank.com/api/pw-app/v1/payment-link/check-payment-status'
+  'https://link.payway.com.kh/api/pw-app/v1/payment-link/check-payment-status'
 
 type StatusRequestBody = {
   client_id?: unknown
@@ -598,7 +598,7 @@ After successful payment, PayWay returns:
       "tran_id": "15883427"
     },
     "cache": 1,
-    "download_receipt": "https://pwapp.ababank.com/api/payment-gateway/v1/payments/download-receipt?file=..."
+    "download_receipt": "https://link.payway.com.kh/api/payment-gateway/v1/payments/download-receipt?file=..."
   }
 }
 ```
@@ -772,7 +772,7 @@ This should be treated as a retryable status check error unless the payment is a
 | Status returns 400 locally | Missing `client_id`, `device_id`, `request_time`, or `token` | Confirm these fields are returned from init and passed to status route |
 | Status returns 500 or 504 | PayWay status endpoint timed out or returned unexpected response | Retry status check and prevent overlapping polling requests |
 | Success payment not shown | UI is checking wrong field | Use `statusData.data.action === "approved"` |
-| QR image fails in Next.js | Remote image host not configured | Add `pwapp.ababank.com` to `next.config.ts` image remote patterns |
+| QR image fails in Next.js | Remote image host not configured | Add `link.payway.com.kh` to `next.config.ts` image remote patterns |
 
 ## 10. Assumptions and Dependencies
 
